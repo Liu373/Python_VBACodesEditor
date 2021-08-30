@@ -521,7 +521,177 @@ class run_main:
                     wb.Close(False)
                     app.Quit()
                     continue
+                    
+                    
+                    
+                    
+                try:
+                    change_vba_formula(wb, match1, match2, match3)
+                    time.sleep(1)
+                    logger.info("{0}'s VBA Debt Formula has been Commented".format(f))
+                except Exception as e:
+                    ctypes.windll.user32.MessageBoxW(0, "{0}'s VBA Debt Formula can not be commented".format(f), "warning", 1)
+                    logger.warning("{0}'s VBA Debt Formula can not be commented".format(f))
+                    logger.warning(e)
+                    wb.Close(False)
+                    app.Quit()
+                    continue
+                    
+                    
+                    
+                    
+                try:
+                    change_debt_formula(wb)
+                    time.sleep(1)
+                    logger.info("{0}'s Debt Tab Formula has been updated".format(f))
+                except Exception as e:
+                    ctypes.windll.user32.MessageBoxW(0, "{0}'s Debt Tab Formula can not be updated".format(f), "warning", 1)
+                    logger.warning("{0}'s Debt Tab Formula can not be updated".format(f))
+                    logger.warning(e)
+                    wb.Close(False)
+                    app.Quit()
+                    continue
+                    
+                    
+                    
+                    
+                try:
+                    change_back_vba_formula(wb, new_match1, new_match2, match1, match2, match3)
+                    time.sleep(1)
+                    logger.info("{0}'s VBA Debt Formula has been changed back".format(f))
+                except Exception as e:
+                    ctypes.windll.user32.MessageBoxW(0, "{0}'s VBA Debt Formula can not be changed back".format(f), "warning", 1)
+                    logger.warning("{0}'s VBA Debt Formula can not be changed back".format(f))
+                    logger.warning(e)
+                    wb.Close(False)
+                    app.Quit()
+                    continue
+                    
+                    
+                    
+                    
+                wb.Protect(ProjectConstants.password)
+                time.sleep(1)
+                logger.info("{0} has been re-protected".format(f))
+                app.DisplayAlerts = False
                 
+                
+                
+                try:
+                    wb.SaveAs(Filename = outp)
+                    time.sleep(1)
+                    logger.info("{0} has been saved".format(f))
+                except Exception as e:
+                    ctypes.windll.user32.MessageBoxW(0, "{0} can not be saved as".format(f), "warning", 1)
+                    logger.warning("{0} can not be saved as".format(f))
+                    logger.warning(e)
+                    wb.Close(False)
+                    app.Quit()
+                    continue
+                    
+                    
+                    
+                
+                app.DisplayAlert = True
+                wb.Close()
+                
+                app.Quit()
+                
+                i += 1
+                logger.info("{0}'s updates are done".format(f))
+                
+                
+            if i == 0:
+                ctypes.windll.user32.MessageBoxW(0, "No file is updated or No xlsm file has been found in the folder", "info", 1)
+                logger.warning("No file starting with 'EMV' has been found in the folder. Check your Path again")
+                quit(self.root)
+                
+            my_progress['value'] = 100
+            self.root.update_idletasks()
+            
+            original_files = len(glob.glob1(path, "*.xlsm"))
+            
+            logger.info("The Whole Process Completed")
+            print("\n")
+            print("\n")
+            print("-"*50)
+            print("\n")
+            print("The work is done")
+            print("\n")
+            print("-"*50)
+            
+            self.sf = i
+            self.0f = original_files
+            
+            time.sleep(2)
+            
+            
+            
+            
+    def message(self):
+        self.main()
+        ctypes.windll.user32.MessageBoxW(0, "Process completed! You've successfully converted {0} out of {1} files".format(self.sf, self.of), "info", 1)
+        
+        
+            
+          
+
+        
+        
+        
+        
+def makeform(root):
+    entries = {}
+    
+    lab = tk.Label(root, width=18, text='Folder Path:', font=(None, 10, 'bold'), anchor='w', fg='White', bg='black')
+    lab.place(x=30, y=30)
+    
+    lab = tk.Label(root, width=18, text='Progress Bar:', font=(None, 10, 'bold'), anchor='w', fg='White', bg='black')
+    lab.place(x=30, y=130)
+    
+    folder_path_text  = tk.StringVar()
+    folder_path_entry = tk.Entry(root, textvariable=folder_path_text)
+    
+    folder_path_entry.place(x=150, y=30, width=700, height=25)
+    entries['Folder_Path'] = folder_path_entry
+    
+    return entries
+
+
+
+def quit(root):
+    root.destory()
+
+    
+    
+
+
+root = tk.Tk()
+w = 900
+h = 180
+ws = root.winfo_screenwidth()
+hs = root.winfo_screenheight()
+
+x = (ws/2) - (w/2)
+y = (hs/2) - (h/2)
+
+root.geometry("%dx%d+%d+%d" % (w, h, x, y))
+root.configure(background='black')
+root.attributes('-alpha', 0.90)
+file_location = makeform(root)
+
+my_progress = ttk.Progressbar(root, orient=tk.HORIZONTAL, length=300, mode="determinate")
+my_progress.place(x=150, y=130)
+
+Quick = tk.Button(root, text="Quit", command=lambda root=root: quit(root), height=1, width=10, bg='White', fg='Black', font=(None, 10, 'bold'))
+Quick.place(x=260, y=80)
+
+
+Submit = tk.Button(root, text="Run", command=lambda e=file_location, root=root: [run_main(e, root).message()], height=1, width=10, bg="White", fg="Black", fond=(None, 10, 'bold'))
+Submit.place(x=150, y=80)
+
+
+root.mainloop()
                 
                 
                 
