@@ -331,9 +331,41 @@ def change_back_vba_formula(wb_, new_intersect1, new_intersect2, old_intersect1,
     
     time.sleep(2)
     
+
     
     
     
+def change_vba_epilogue(app_, timeout_second_):
+    id_project_properties = 2578
+    app_.VBE.CommandBars.FindControl(Id=id_project_properties).Execute()
+    wait_loop(timeout_second_, app_, lock_vba_project)
+
     
+    
+def terminate():
+    global flag
+    while (1):
+        hwnd = win32gui.FindWindow(None, 'VBAProject Password')
+        if hwnd != 0:
+            print("\n")
+            print("\n")
+            print("Found Password Window")
+            id_password = 0x155e
+            id_ok = 1
+            
+            text_box = user32.GetDlgItem(hwnd, id_password)
+            ok_button = user32.GetDlgItem(hwnd, id_ok)
+            if text_box == 0 and ok_button == 0:
+                raise WaitException("Fail to find textbox and okbutton in password window")
+                
+            user32.SetFocus(text_box)
+            user32.SendMessageA(text_box, win32con.WM_SETTEXT, None, raw_str(ProjectConstants.password))
+            
+            user32.SetFocus(ok_button)
+            user32.SendMessageA(ok_button, win32con.BM_CLICK, 0, 0)
+            break
+            
+        if flag == True:
+            break
     
 
