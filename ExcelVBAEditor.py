@@ -153,12 +153,187 @@ def lock_vba_project(application):
     
 
 
+def extract_lookup(col_index, row_range, ws):
+    return [data.Value for data in [ws.Range(loc)
+            for loc in [str(col_index) + str(ii)
+            for ii in row_range]]]
+
+
+def wait_loop(timeout_sec, application, func):
+    timeout = time.time() + timeout_sec
+    while time.time() < timeout:
+        try:
+            done_run = func(application)
+            if done_run:
+                break
+        
+        except WaitException as e:
+            print(str(e))
+            sleep()
+
+            
+            
+def change_property_data(wb_, new_p_version_):
+    property_ws = wb_.Worksheets("Property Data")
+    cell = property_ws.Range("B32")
+    cell.Value = new_p_version_
+
+    
+    
+    
+def change_reference_tables(wb_):
+    ref_key_col = 'AI'
+    ref_val_col = 'AJ'
+    ref_start_row = 3
+    ref_end_row = 24
+    
+    to_replace = {'Undoubted: 8.0
+                  'Unrated > 5 years': 3.0,
+                  'Large pool': 6.0,
+                  'Small pool': 3.0}
+    
+    reference_ws = wb_.Worksheets("Reference Tables")
+    row_range = range(ref_start_row, ref_end_row + 1)
+    lookup_keys = extract_lookup(ref_key_col, row_range, reference_ws)
+    lookup_values = extract_lookup(ref_val_col, row_range, reference_ws)
+    original_values = dict(zip(lookup_keys, lookup_values))
+    
+    new_values = original_values.copy()
+    
+    for k, v in to_replace.items():
+        new_values[k] = v
+    
+    for i, k in zip(row_range, lookup_keys):
+        reference_ws.Range(str(ref_val_col) + str(i)).Value = new_values[k]
 
 
 
 
 
+def change_debt_Formula(wb_):
+    formula_ws = wb_.Worksheets("Debt")
+    
+    for i in range(2, 6):
+        
+        cell1 = formula_ws.Range("O{0}".format(i))
+        cell2 = formula_ws.Range("P{0}".format(i))
+        
+        Formula1 = "=IFERROR(-PMT(XXXXXXXX)".format(i)
+        Formula2 = same as above
+        
+        cell1.Value = Formula1
+        cell2.Value = Formula2
+    
+    time.sleep(3)
 
+    
+    
+    
+    
+def change_vba_prologue(app_, timeout_second_):
+    app_.CommandBars.ExecuteMso("ViewCode")
+    wait_loop(timeout_second_, app_, unlock_vba_project)
+    wait_loop(timeout_second_, app_, close_vba_project_window)
 
+    
+    
+    
+    
+def change_vba(wb_, old_c_version_, new_c_version_):
+    match = old_c_version_
+    replacement = new_c_version_
+    
+    code_base = wb_.VBAProject.VBComponents("Complete").CodeModule
+    startrow = 0
+    
+    while True:
+        success, startrow, startcol, endrow, endcol = code_base.Find(match, startrow +1, 1, -1, -1)
+        
+        if not success:
+            break
+        
+        old_line = code_base.Lines(startrow, 1)
+        new_line = old_line[:startcol - 1] + replacement + old_line[endcol - 1:]
+        code_base.ReplaceLine(startrow, new_line)
 
+        
+        
+        
+        
+def change_vba_formula(wb_, old_intersect1, old_intersect2, old_intersect3):
+    match1 = old_intersect1
+    match2 = old_intersect2
+    match3 = old_intersect3
+    
+    code_base = wb_.VBAProject.VBAComponents("Sheet03").CodeModule
+    startrow = 0
+    
+    while True:
+        success, startrow, startcol, endrow, endcol = code_base.Find(match1, startrow +1, 1, -1, -1)
+        
+        if not success:
+            break
+            
+        new_line = "'" + match1
+        code_base.ReplaceLine(startrow, new_line)
+    
+    startrow = 0
+    while True:
+        success, startrow, startcol, endrow, endcol = code_base.Find(match2, startrow +1, 1, -1, -1)
+        
+        if not success:
+            break
+            
+        new_line = "'" + match2
+        code_base.ReplaceLine(startrow, new_line)
+        
+    new_line = "'" + match3
+    code_base.ReplaceLine(startrow, new_line)
+    
+    time.sleep(2)
+    
+
+    
+    
+    
+    
+def change_back_vba_formula(wb_, new_intersect1, new_intersect2, old_intersect1, old_intersect2, old_intersect3):
+    match1 = new_intersect1
+    match2 = new_intersect2
+    
+    code_base = wb_.VBProject.VBComponents("Sheet03").CodeModule
+    startrow = 0
+    
+    while True:
+        success, startrow, startcol, endrow, endcol = code_base.Find(match1, startrow +1, 1, -1, -1)
+        
+        if not success:
+            break
+            
+        new_line = old_intersect1
+        code_base.ReplaceLine(startrow, new_line)
+        
+    
+    startrow = 0
+    
+    while True:
+        success, startrow, startcol, endrow, endcol = code_base.Find(match2, startrow +1, 1, -1, -1)
+        
+        if not success:
+            break
+            
+        new_line = old_intersect2
+        code_base.ReplaceLine(startrow, new_line)
+        
+    
+    new_line = old_intersect3
+    code_base.ReplaceLine(startrow, new_line)
+    
+    time.sleep(2)
+    
+    
+    
+    
+    
+    
 
