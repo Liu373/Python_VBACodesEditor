@@ -367,5 +367,172 @@ def terminate():
             
         if flag == True:
             break
+            
+
     
 
+
+    
+    
+    
+class run_main:
+    
+    def __init__(self, entry, root):
+        self.entry = entry
+        self.root = root
+        self.sf   = ' ' 
+        self.of   = ' '
+        
+    def main(self):
+        my_progress['value'] = 10
+        self.root.update_idletasks()
+        
+        app = win32com.client.DispatchEx('Excel.Application')
+        app.Visible = False
+        
+        Path      = self.entry['Folder_Path'].get()
+        logfile   = dir_path + '\\Excel_Editor_Automation.log'
+        new_p_version = 'Version: 1.3'
+        old_c_version = 'Completed-V2'
+        new_c_version = 'Completed-V3'
+        new_e_version = '1.3'
+        
+        match1  = 'If Not Application.Intersect(ActiveCell, Range("B2:X45")) Is Nothing Then'
+        match2  = 'Sheet3.Range("A4").ClearContents'
+        match3  = 'End If'
+        
+        new_match1 = "'" + match1
+        new_match2 = "'" + match2
+        
+        LOG_FORMAT = "%(levelname)s:%(asctime)s:%(message)s"
+        
+        try:
+            logging.basicConfig(filename = logfile, level = logging.DEBUG, format = LOG_FORMAT, filemode = 'w')
+            logger = logging.getLogger()
+        except Exception as e:
+            ctypes.windll.user32.MessageBox(0, 'Issue for creating log file', 'Warning', 1)
+            logger.warning('Issue for creating log file')
+            logger.warning(e)
+            quit(self.root)
+            
+            
+        my_progreww['value'] = 20
+        self.root.upadte_idletasks()
+        
+        i = 0
+        logger.info("Pre-Varibles are set up and will start the 'for' loop")
+        
+        for f in os.listdir(Path):
+            
+            if f.endswith(".xlsm"):
+                inp   = Path + '\\' + f
+                outp  = Path + '\\Output' + "(Converted_NewVersion_{0})_",format(new_e_version) + f
+                xlsmCounter = len(glob.glob1(Path, "*.xlsm"))
+                increment   = (90-20)/xlsmCounter
+                
+                logger.info("Forloop-Variables are set up")
+                
+                my_progress['value'] = my_progress['value'] + increment
+                self.root.update_idletasks()
+                
+                
+                
+                try:
+                    wb = app.Workbooks.Open(inp)
+                    time.sleep(5)
+                except Exception as e:
+                    ctypes.windll.user32.MessageBoxW(0, "{0} is not found or opened".format(f), "warning", 1)
+                    logger.warning("{0} is not found or opened".format(f))
+                    logger.warning(e)
+                    wb.Close(False)
+                    app.Quit()
+                    continue
+                    
+                    
+                try:
+                    wb.Unprotect(ProjectConstants.password)
+                    time.sleep(1)
+                    logger.info("{0} has been unprotected".format(f))
+                except Exception as e:
+                    ctypes.windll.user32.MessageBoxW(0, "{0} can not be unprotected".format(f), "warning", 1)
+                    logger.warning("{0} can not be unprotected".format(f))
+                    logger.warning(e)
+                    wb.Close(False)
+                    app.Quit()
+                    continue
+                    
+                    
+                
+                
+                try:
+                    change_property_data(wb, new_p_version)
+                    time.sleep(1)
+                    logger.info("{0}'s Property Data Tab has been updated".format(f))
+                except Exception as e:
+                    ctypes.windll.user32.MessageBoxW(0, "{0}'s Property Data Tab can not be updated".format(f), "warning", 1)
+                    logger.warning("{0}'s Property Data Tab can not be updated".format(f))
+                    logger.warning(e)
+                    wb.Close(False)
+                    app.Quit()
+                    continue
+                    
+                    
+                   
+                
+                try:
+                    change_reference_tables(wb)
+                    time.sleep(1)
+                    logger.info("{0}'s Reference Data Tab has been updated".format(f))
+                except Exception as e:
+                    ctypes.windll.user32.MessageBoxW(0, "{0}'s Reference Data Tab can not be updated".format(f), "warning", 1)
+                    logger.warning("{0}'s Reference Data Tab can not be updated".format(f))
+                    logger.warning(e)
+                    wb.Close(False)
+                    app.Quit()
+                    continue
+                    
+                    
+                    
+                    
+                t = threading.Thread(target = terminate)
+                t.start()
+                
+                
+                try:
+                    app.CommandBars.ExecuteMso("ViewCode")
+                except:
+                    t.join()
+                    None
+                if t.is_alive():
+                    t.join()
+                    time.sleep(1)
+                    
+                    
+                    
+                
+                try:
+                    change_vba(wb, old_c_version, new_c_version)
+                    time.sleep(1)
+                    logger.info("{0}'s VBA has been updated".format(f))
+                except Exception as e:
+                    ctypes.windll.user32.MessageBoxW(0, "{0}'s VBA can not be updated".format(f), "warning", 1)
+                    logger.warning("{0}'s VBA can not be updated".format(f))
+                    logger.warning(e)
+                    wb.Close(False)
+                    app.Quit()
+                    continue
+                
+                
+                
+                
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    
+    
