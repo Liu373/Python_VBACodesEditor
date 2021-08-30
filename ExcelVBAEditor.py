@@ -67,6 +67,89 @@ def unlock_vba_project(application):
 
 
 def close_vba_project_window(application):
+    id_ok = 1
+    password_window = user32.FindWindowA(None, raw_str("VBAProject - Project Properties"))
+    if password_window == 0:
+        raise WaitException("Fail to Find Project Properties Window to Close")
+    
+    print("Found Project Properties Window to Close")
+    user32.SendMessageA(password_window, commctrl.TCM_SETCURFOCUS, 1, 0)
+    
+    ok_button = user32.GetDlgItem(password_window, id_ok)
+    if ok_button == 0:
+        raise WaitExceptiion("Fail to find ok button in project properties window")
+    
+    user32.SetFocus(ok_button)
+    user32.SendMessageA(ok_button, win32con.BM_ClICK, 0)
+
+
+    
+def lock_vba_project(application):
+    id_ok = 1
+    id_tabcontrol = 0x3020
+    id_subdialog = 0x8002
+    id_checkbox_lock = 0x1557
+    id_textbox_pass1 = 0x1555
+    id_textbox_pass2 = 0x1556
+    
+    password_window = user32.FindWindowA(None, raw_str("VBA Project - Project Properties"))
+    if password_window == 0:
+        raise WaitException("Fail to find project properties window")
+    
+    print("Found project properties window")
+    tabcontrol = user32.GetDlgItem(password_window, id_tabcontrol)
+    user32.SendMessageA(tabcontrol, commctrl.TCM_SETCURFOCUS, 1, 0)
+    if user32.SendMessageA(tabcontrol, commctrl.TCM_GETCURFOCUS) != 1:
+        raise WaitException("Fail to change tab control")
+    
+    subdialog = user32.FindWindowExA(password_window, 0, id_subdialog, None)
+    if subdialog == 0:
+        raise WaitException("Fail to find subdialog")
+    
+    checkbox_lock = user32.GetDlgItem(subdialog, id_checkbox_lock)
+    if checkbox_lock == 0:
+        raise WaitException("Fail to find checkbox")
+    
+    user32.SetFocus(checkbox_lock)
+    user32.SendMessageA(checkbox_lock, win32con.BM_SETCHECK, win32con.BST_CHECKED, 0)
+    
+    checkbox_state = user32.SendMessageA(checkbox_lock, win32con.BM_GETCHECK)
+    if checkbox_state != win32con.BST_CHECKED:
+        raise WaitException("Fail to activate checkbox")
+        
+    textbox_pass1 = user32.GetDlgItem(subdialog, id_textbox_pass1)
+    if textbox_pass1 == 0:
+        raise WaitException("Fail to find password box 1")
+    
+    user32.SetFocus(textbox_pass1)
+    user32.SendMessageA(textbox_pass1, win32con.WM_SETTEXT, None, raw_str(ProjectConstants.password))
+    length = user32SendMessage(textbox_pass1, win32con.WM_GETTEXTLENGTH)
+    
+    if length != len("063"):
+        raise WaitException("Fail to complete password box 1")
+    
+    
+    textbox_pass2 = user32.GetDlgItem(subdialog, id_textbox_pass2)
+    user32.SetFocus(textbox_pass2)
+    if textbox_pass2 == 0:
+        raise WaitException("Fail to find password box 2")
+    
+    user32.SetFocus(textbox_pass2)
+    user32.SendMessageA(textbox_pass2, win32con.WM_SETTEXT, None, raw_str(ProjectConstants.password))
+    length = user32SendMessage(textbox_pass2, win32con.WM_GETTEXTLENGTH)
+    
+    if length != len("063"):
+        raise WaitException("Fail to complete password box 2")
+    
+    
+    ok_button = user32.GetDlgItem(password_window, id_ok)
+    if ok_button == 0:
+        raise WaitException("Fail to find OK button")
+    
+    user32.SetFocus(ok_button)
+    user32.SendMessageA(ok_button, win32con.BM_CLICK, 0)
+    return True
+        
     
 
 
